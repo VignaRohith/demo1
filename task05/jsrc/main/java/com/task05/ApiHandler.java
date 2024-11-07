@@ -37,10 +37,7 @@ public class ApiHandler implements RequestHandler<Map<String, Object>, Map<Strin
 		Map<String, String> content = (Map<String, String>) requestBody.get("content");
 
 		if (principalId == null || content == null) {
-			Map<String, Object> errorResponse = new HashMap<>();
-			errorResponse.put("statusCode", 400);
-			errorResponse.put("body", "Missing required fields: principalId or content");
-			return errorResponse;
+			return createErrorResponse(400, "Missing required fields: principalId or content");
 		}
 
 		// Create an event
@@ -58,22 +55,41 @@ public class ApiHandler implements RequestHandler<Map<String, Object>, Map<Strin
 		try {
 			putEventInDynamoDB(eventItem);
 		} catch (Exception e) {
-			Map<String, Object> errorResponse = new HashMap<>();
-			errorResponse.put("statusCode", 500);
-			errorResponse.put("body", "Failed to save event: " + e.getMessage());
-			return errorResponse;
+			return createErrorResponse(500, "Failed to save event: " + e.getMessage());
 		}
 
-		// Return the created event as the response
-		Map<String, Object> successResponse = new HashMap<>();
-		successResponse.put("statusCode", 201);
-		successResponse.put("event", eventItem.asMap()); // Return the full event object
-		return successResponse;
+		// Return the created event as the response (statusCode should be 201)
+		return createSuccessResponse(201, eventItem);
 	}
 
 	private void putEventInDynamoDB(Item eventItem) {
 		DynamoDB dynamoDb = new DynamoDB(dynamoDBClient);
 		Table table = dynamoDb.getTable(DYNAMO_DB_TABLE_NAME);
 		table.putItem(eventItem);
+	}
+
+	// Utility method to create error response with status code and message
+	private Map<String, Object> createErrorResponse(int statusCode, String message) {
+		Map<String, Object> response = new HashMap<>();
+		response.put("statusCode", statusCode);
+		response.put("headers", Map.of("Content-Type", "application/json"));
+		response.put("body", "{\"error\": \"" + message + "\"}");
+		return response;
+	}
+
+	// Utility method to create success response with status code and event data
+	private Map<String, Object> createSuccessResponse(int statusCode, Item eventItem) {
+		Map<String, Object> response = new HashMap<>();
+		response.put("statusCode", statusCode);
+		response.put("headers", Map.of("Content-Type", "application/json"));
+
+		// Stringify the event JSON before placing it in the body
+		try {
+			String eventJson = objectMapper.writeValueAsString(eventItem.asMap());
+			response.put("body", eventJson);
+		} catch (Exception e) {
+			response.put("body", "{\"error\": \"Failed to serialize event\"}");
+		}
+		return response;
 	}
 }
