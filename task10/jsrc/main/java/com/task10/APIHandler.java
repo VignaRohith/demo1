@@ -26,6 +26,8 @@ import java.util.*;
 @LambdaHandler(lambdaName = "api_handler",
         roleName = "api_handler-role",
         runtime = DeploymentRuntime.JAVA17,
+        isPublishVersion = true,
+        aliasName = "learn",
         logsExpiration = RetentionSetting.SYNDICATE_ALIASES_SPECIFIED
 )
 @EnvironmentVariables(value = {
