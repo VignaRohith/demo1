@@ -1,0 +1,13 @@
+name: demo1
+events:
+- operation: assemble
+  initiator: govindarajuvigna_roh
+  bundle_name: demo1_241114.210009
+  time_start: '2024-11-14T21:00:12Z'
+  time_end: '2024-11-14T21:00:12Z'
+  duration_sec: 0.003
+- operation: test
+  initiator: govindarajuvigna_roh
+  time_start: '2024-11-14T21:00:12Z'
+  time_end: '2024-11-14T21:00:12Z'
+  duration_sec: 0.001

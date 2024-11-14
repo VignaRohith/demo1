@@ -21,7 +21,8 @@
       "booking_userpool" : "${booking_userpool}",
       "region" : "${region}"
     },
-    "publish_version" : false,
+    "publish_version" : true,
+    "alias" : "learn",
     "logs_expiration" : "${logs_expiration}",
     "snap_start" : "None"
   }
